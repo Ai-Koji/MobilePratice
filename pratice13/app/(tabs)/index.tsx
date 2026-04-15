@@ -5,6 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
 import { useEffect, useState } from 'react';
 
+// события для нажания
 async function Camera() {
   const { status } = await ImagePicker.requestCameraPermissionsAsync();
 
@@ -13,7 +14,7 @@ async function Camera() {
     return;
   }
   
-  const result = await ImagePicker.launchCameraAsync();
+  await ImagePicker.launchCameraAsync();
 }
 
 function Web() {
@@ -25,12 +26,13 @@ function Phone() {
 }
 
 function Map() {
-  Linking.openURL('https://maps.apple.com/?q=Moscow');
+  Linking.openURL('https://maps.apple.com/?q=Novosibirsk');
 }
 
 export default function HomeScreen() {
   const [data, setData] = useState([]);
 
+  // пасим фотки
   useEffect(() => {
       MediaLibrary.requestPermissionsAsync().then(({status}) => {
         MediaLibrary.getAssetsAsync({
@@ -43,7 +45,7 @@ export default function HomeScreen() {
               const info = await MediaLibrary.getAssetInfoAsync(asset);
               return {
                 ...asset,
-                uri: info.localUri || info.uri // Берем локальный путь, если он есть
+                uri: info.localUri
               };
             })
           );
