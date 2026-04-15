@@ -1,8 +1,9 @@
 import { StyleSheet } from 'react-native';
-import { View, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Image, FlatList, ScrollView, TouchableOpacity } from 'react-native';
 import { Linking } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-
+import * as MediaLibrary from 'expo-media-library';
+import { useEffect, useState } from 'react';
 
 async function Camera() {
   const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -13,7 +14,6 @@ async function Camera() {
   }
   
   const result = await ImagePicker.launchCameraAsync();
-  console.log(result);
 }
 
 function Web() {
@@ -29,6 +29,31 @@ function Map() {
 }
 
 export default function HomeScreen() {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+      MediaLibrary.requestPermissionsAsync().then(({status}) => {
+        MediaLibrary.getAssetsAsync({
+          first: 50,
+          sortBy: ['creationTime'],
+          mediaType: ['photo'],
+        }).then(async (photos) => {
+          const assetsWithLocalUri = await Promise.all(
+            photos.assets.map(async (asset) => {
+              const info = await MediaLibrary.getAssetInfoAsync(asset);
+              return {
+                ...asset,
+                uri: info.localUri || info.uri // Берем локальный путь, если он есть
+              };
+            })
+          );
+
+        setData(assetsWithLocalUri);
+        console.log(assetsWithLocalUri);
+        })
+      })
+  }, [])
+
   return (
     <View style={styles.container}>
 
@@ -59,94 +84,24 @@ export default function HomeScreen() {
                 </TouchableOpacity>
             </View>
         </View>
-        
-        <ScrollView
-          showsVerticalScrollIndicator={false} // Скрывает полосу прокрутки (по желанию)
-          contentContainerStyle={styles.scrollContent} // Стили для внутреннего контейнера
-        >
         {/* gallery */}
-          <View style={styles.content}>
-              <View style={styles.contentColumn}>
-                  <View style={styles.imageContainer}>
-                      <Image 
-                      style={styles.imageGallery}
-                      source={require('../../assets/images/1.png')}/>
-                  </View>
-                  <View style={styles.imageContainer}>
-                      <Image 
-                      style={styles.imageGallery}
-                      source={require('../../assets/images/1.png')}/>
-                  </View>
-                  <View style={styles.imageContainer}>
-                      <Image 
-                      style={styles.imageGallery}
-                      source={require('../../assets/images/1.png')}/>
-                  </View>
-                  <View style={styles.imageContainer}>
-                      <Image 
-                      style={styles.imageGallery}
-                      source={require('../../assets/images/1.png')}/>
-                  </View>
-                  <View style={styles.imageContainer}>
-                      <Image 
-                      style={styles.imageGallery}
-                      source={require('../../assets/images/1.png')}/>
-                  </View>
-                  <View style={styles.imageContainer}>
-                      <Image 
-                      style={styles.imageGallery}
-                      source={require('../../assets/images/1.png')}/>
-                  </View>
+        <View style={styles.content}>
+          <FlatList
+            data={data}
+            numColumns={2}
+            contentContainerStyle={styles.flatRows}
+            columnWrapperStyle={styles.flatCols}
+            style={{ width: '100%' }}
+            renderItem={({ item }) => (
+              <View style={styles.imageContainer}>
+                  <Image 
+                    style={styles.imageGallery}
+                    source={{ uri: item.uri }}/>
               </View>
-              <View style={styles.contentColumn}>
-                  <View style={styles.imageContainer}>
-                      <Image 
-                      style={styles.imageGallery}
-                      source={require('../../assets/images/1.png')}/>
-                  </View>
-                  <View style={styles.imageContainer}>
-                      <Image 
-                      style={styles.imageGallery}
-                      source={require('../../assets/images/1.png')}/>
-                  </View>
-                  <View style={styles.imageContainer}>
-                      <Image 
-                      style={styles.imageGallery}
-                      source={require('../../assets/images/1.png')}/>
-                  </View>
-                  <View style={styles.imageContainer}>
-                      <Image 
-                      style={styles.imageGallery}
-                      source={require('../../assets/images/1.png')}/>
-                  </View>
-                  <View style={styles.imageContainer}>
-                      <Image 
-                      style={styles.imageGallery}
-                      source={require('../../assets/images/1.png')}/>
-                  </View>
-                  <View style={styles.imageContainer}>
-                      <Image 
-                      style={styles.imageGallery}
-                      source={require('../../assets/images/1.png')}/>
-                  </View>
-                  <View style={styles.imageContainer}>
-                      <Image 
-                      style={styles.imageGallery}
-                      source={require('../../assets/images/1.png')}/>
-                  </View>
-                  <View style={styles.imageContainer}>
-                      <Image 
-                      style={styles.imageGallery}
-                      source={require('../../assets/images/1.png')}/>
-                  </View>
-                  <View style={styles.imageContainer}>
-                      <Image 
-                      style={styles.imageGallery}
-                      source={require('../../assets/images/1.png')}/>
-                  </View>
-              </View>
-          </View>
-        </ScrollView>
+            )}
+            keyExtractor={item => item.id}
+          />
+        </View>
     </View>
   );
 }
@@ -195,7 +150,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#d9d9d9'
   },
   content: {
-    flexDirection: 'row',
+    justifyContent: 'center',
     gap: 40,
     marginTop: 40
   },
@@ -203,9 +158,13 @@ const styles = StyleSheet.create({
     width: 150,
     gap: 20
   },
-  scrollContent: {
+  flatRows: {
     alignItems: 'center', // Центрируем элементы внутри скролла
     paddingTop: 50,       // Тот самый отступ вместо marginTop
     paddingBottom: 40,    // Отступ снизу, чтобы последний элемент не прилипал
+    gap: 20
   },
+  flatCols: {
+    gap: 40    
+  }
 });
