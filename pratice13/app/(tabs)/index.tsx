@@ -1,6 +1,32 @@
 import { StyleSheet } from 'react-native';
-import { View, Image, ScrollView } from 'react-native';
-// import { ScrollView } from 'react-native-reanimated/lib/typescript/Animated';
+import { View, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { Linking } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+
+
+async function Camera() {
+  const { status } = await ImagePicker.requestCameraPermissionsAsync();
+
+  if (status !== 'granted') {
+    alert('Извините, нам нужны разрешения на камеру, чтобы это работало!');
+    return;
+  }
+  
+  const result = await ImagePicker.launchCameraAsync();
+  console.log(result);
+}
+
+function Web() {
+  Linking.openURL('https://www.google.com');
+}
+
+function Phone() {
+  Linking.openURL('tel:+79133792906');
+}
+
+function Map() {
+  Linking.openURL('https://maps.apple.com/?q=Moscow');
+}
 
 export default function HomeScreen() {
   return (
@@ -9,28 +35,28 @@ export default function HomeScreen() {
         {/* navbar */}
         <View style={styles.columns}>
             <View style={styles.column}>
-                <View style={{...styles.navItem, ...styles.imageContainer}}>
+                <TouchableOpacity onPress={Camera} style={{...styles.navItem, ...styles.imageContainer}}>
                     <Image 
                     style={styles.image}
                     source={require('../../assets/images/camera.png')}/>
-                </View>
-                <View style={{...styles.navItem, ...styles.imageContainer}}>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={Web} style={{...styles.navItem, ...styles.imageContainer}}>
                     <Image 
                     style={styles.image}
                     source={require('../../assets/images/www.png')}/>
-                </View>
+                </TouchableOpacity>
             </View>
             <View style={styles.column}>
-                <View style={{...styles.navItem, ...styles.imageContainer}}>
+                <TouchableOpacity onPress={Phone} style={{...styles.navItem, ...styles.imageContainer}}>
                     <Image 
                     style={styles.image}
                     source={require('../../assets/images/phone.png')}/>
-                </View>
-                <View style={{...styles.navItem, ...styles.imageContainer}}>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={Map} style={{...styles.navItem, ...styles.imageContainer}}>
                     <Image 
                     style={styles.image}
                     source={require('../../assets/images/map.png')}/>
-                </View>
+                </TouchableOpacity>
             </View>
         </View>
         
