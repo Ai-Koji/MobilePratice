@@ -31,7 +31,7 @@ async function getCityByCoords (coordObj: Location) : Promise<string |null> {
 
 
   if (latitude === undefined || longitude === undefined) {
-    return 'Moscow';
+    return 'Москва';
   }
 
   let response = await Location.reverseGeocodeAsync({
@@ -40,14 +40,25 @@ async function getCityByCoords (coordObj: Location) : Promise<string |null> {
     });
   
   if (response.length === 0) {
-    return 'Moscow';
+    return 'Москва';
   }
 
   return response[0].city;
 }
 
+async function getWeather(city : string, lang : string) {
+  let url = `https://api.weatherapi.com/v1/current.json?key=${process.env.EXPO_PUBLIC_API_KEY}&q=${city}&lang=${lang}&aqi=no`
+  console.log('url: ', url);
+
+  const res = (await fetch(url)).json();
+
+  return res;
+}
+
+
 export default function HomeScreen() {
-  const [city, setCity] = useState('Moscow');
+  const [city, setCity] = useState('Москва');
+  const [weather, setWeather] = useState({});
   useEffect(() => {
     const getCity = async () => {
       let location = await getLoc();
@@ -57,7 +68,13 @@ export default function HomeScreen() {
     getCity();
   }, [])
 
-  alert(city);
+  useEffect(() => {
+    const weather = async () => {
+      const weatherInfo = await getWeather(city, 'ru');
+      setWeather(weatherInfo);
+    }
+    weather();
+  }, [city])
 
   return (
     <ScrollView>
@@ -65,6 +82,7 @@ export default function HomeScreen() {
         <ThemedText style={styles.mainInfo}>
           <Text>32</Text>℃
         </ThemedText>
+        {/* фото */}
 
         <ThemedText>
           fdsafdsa
