@@ -71,21 +71,27 @@ export default function HomeScreen() {
   useEffect(() => {
     const weather = async () => {
       const weatherInfo = await getWeather(city, 'ru');
-      setWeather(weatherInfo);
+      setWeather(weatherInfo.current);
     }
     weather();
   }, [city])
 
+  console.log('weather: ', weather);
   return (
     <ScrollView>
       <View style={styles.mainStatus}>
-        <ThemedText style={styles.mainInfo}>
-          <Text>32</Text>℃
+        <ThemedText style={{...styles.mainInfo, ...styles.mainInfoHeader}}>
+          <Text>{weather.temp_c}</Text> ℃
         </ThemedText>
-        {/* фото */}
+        <ThemedText style={{...styles.mainInfo, ...styles.featureInfoHeader}}>
+          <Text>{weather.condition ? weather.condition.text : '.'}</Text>
+        </ThemedText>
 
-        <ThemedText>
-          fdsafdsa
+        <ThemedText style={styles.mainInfo}>
+          по ощущениям как <Text>{weather.feelslike_c}</Text> ℃
+        </ThemedText>
+        <ThemedText style={styles.mainInfo}>
+          влажность <Text>{weather.humidity}</Text>%
         </ThemedText>
       </View>
     </ScrollView>
@@ -95,16 +101,28 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   mainStatus: {
-    paddingTop: 40,
+    paddingTop: 80,
     paddingHorizontal: 32,
     textAlign: 'center',
   },
-  mainInfo: {
-    paddingTop: 40,
+  mainInfoHeader: {
+    paddingTop: 10,
     fontSize: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
     fontWeight: 'bold',
+  },
+  featureInfoHeader: {
+    paddingTop: 10,
+    fontSize: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontWeight: 'bold',
+  },
+  mainInfo: {
+    height: 'auto',
     paddingHorizontal: 32,
     textAlign: 'center',
-  }
+  },
 
 })
