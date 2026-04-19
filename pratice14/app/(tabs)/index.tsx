@@ -6,7 +6,7 @@ import { ThemedView } from '@/components/themed-view';
 import { Link } from 'expo-router';
 import { useState } from 'react';
 
-const operations = ['%', 'C', '÷', 'x','-', '+', '.', '+-', ','];
+const operations = ['C', '÷', 'x','-', '+', '.', '+-', ',', '%'];
 
 export default function HomeScreen() {
   const [expression, setExpression] = useState('');
@@ -19,9 +19,8 @@ export default function HomeScreen() {
     if (op === 'C') {
       setExpression('');
     }
-
-    console.log(expression[expression.length-1], operations, operations.find(el => el === expression[expression.length-1]))
-    if (operations.find(el => el === expression[expression.length-1])?.length) {
+    
+    if (operations.find(el => el === expression[expression.length-1])?.length && expression[expression.length-1] !== '%') {
       setExpression((prev : string)=> {
         return prev.slice(0, -1) + op;
       });
@@ -38,10 +37,17 @@ export default function HomeScreen() {
     tempExpression = tempExpression.replace(',', '.');
     tempExpression = tempExpression.replace('x', '*');
     tempExpression = tempExpression.replace('÷', '/');
+    
+    // %:
+    tempExpression = tempExpression.replace(/(\d+\.?\d*)([\+\-])(\d+\.?\d*)%/g, '$1$2($1*$3/100)');
+    tempExpression = tempExpression.replace(/(\d+\.?\d*)%/g, '($1/100)');
 
-    console.log(tempExpression);
-
-    setExpression(eval(tempExpression).toString());
+    try {
+      const result = eval(tempExpression);
+      setExpression(Number(result.toFixed(8)).toString());
+    } catch (e) {
+      setExpression('Error');
+    }
   }
 
   return (
