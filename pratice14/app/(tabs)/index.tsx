@@ -50,6 +50,29 @@ export default function HomeScreen() {
     }
   }
 
+  const pressPlusMinus = () => {
+    if (expression === '' || expression === '0') return;
+
+    setExpression((prev) => {
+      // Регулярное выражение ищет последнее число в строке (включая точку/запятую)
+      // Оно смотрит на конец строки и захватывает цифры и разделители
+      const lastNumberMatch = prev.match(/(-?\d+[\.,]?\d*)$/);
+
+      if (lastNumberMatch) {
+        const lastNumber = lastNumberMatch[0];
+        const beforeLastNumber = prev.slice(0, lastNumberMatch.index);
+
+        // Если число уже с минусом — убираем его, если нет — добавляем
+        if (lastNumber.startsWith('-')) {
+          return beforeLastNumber + lastNumber.slice(1);
+        } else {
+          return beforeLastNumber + '-' + lastNumber;
+        }
+      }
+      return prev;
+    });
+  };
+
   return (
     <ThemedView style={styles.container}>
       <ScrollView
@@ -63,7 +86,7 @@ export default function HomeScreen() {
             <TouchableOpacity style={styles.button} onPress={() => pressClean()}>
               <ThemedText style={styles.buttonText}>AC</ThemedText>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={() => pressNumber('1')}>
+            <TouchableOpacity style={styles.button} onPress={pressPlusMinus}>
               <ThemedText style={styles.buttonText}>+/-</ThemedText>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress={() => pressNumber('%')}>
